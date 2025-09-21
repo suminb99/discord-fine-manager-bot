@@ -1,13 +1,19 @@
 import discord
 from discord.ext import commands
 import logging
+from dotenv import load_dotenv
 import os
 from datetime import datetime, timezone, timedelta
 from keep_alive import keep_alive
 
 keep_alive()
 
-token = os.environ['DISCORD_TOKEN']
+load_dotenv()
+token = os.getenv('DISCORD_TOKEN')
+
+if token is None:
+    raise ValueError("디스코드 TOKEN이 .env 파일에 설정되어 있지 않습니다.")
+
 
 handler = logging.FileHandler(filename='discord.log',
                               encoding='utf-8',
