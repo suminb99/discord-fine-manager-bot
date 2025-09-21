@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-from discord import app_commands
 import logging
 from dotenv import load_dotenv
 import os
@@ -66,9 +65,10 @@ async def get_unchecked_members(message):
     return unchecked
 
 
-@bot.command()
-async def 벌금체크(ctx):
-    messages = await get_fine_messages(ctx.channel)
+# 슬래시 명령
+@bot.tree.command(name="벌금체크", description="최근 14일간 벌금 납부 후 체크 안 한 부원을 멘션합니다.")
+async def 벌금체크(interaction: discord.Interaction):
+    messages = await get_fine_messages(interaction.channel)
     
     all_unchecked = set() # 여러 메세지에서 부원이 중복되지 않게 한 번만 멘션
     for message in messages:
@@ -77,9 +77,9 @@ async def 벌금체크(ctx):
 
     if all_unchecked:
         mentions = " ".join(member.mention for member in all_unchecked)
-        await ctx.send(f"{mentions}\n벌금 납부 안 하신 분들은 입금 후 체크 표시(✅) 꼭 남겨주세요!")
+        await interaction.response.send_message(f"{mentions}\n벌금 납부 안 하신 분들은 입금 후 체크 표시(✅) 꼭 남겨주세요!")
     else:
-        await ctx.send("✅ 전원 입금 완료!")
+        await interaction.response.send_message("✅ 전원 입금 완료!")
 
 
 bot.run(token=token, log_handler=handler, log_level=logging.DEBUG)
