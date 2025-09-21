@@ -10,10 +10,8 @@ keep_alive()
 
 load_dotenv()
 token = os.getenv('DISCORD_TOKEN')
-
 if token is None:
     raise ValueError("디스코드 TOKEN이 .env 파일에 설정되어 있지 않습니다.")
-
 
 handler = logging.FileHandler(filename='discord.log',
                               encoding='utf-8',
@@ -25,10 +23,13 @@ intents.reactions = True
 
 bot = commands.Bot(command_prefix='/', intents=intents)
 
-
 @bot.event
 async def on_ready():
-    print("봇이 성공적으로 로그인했습니다!")
+    print(f"봇 로그인 성공: {bot.user}")
+
+    # 슬래시 명령어 동기화
+    await bot.tree.sync()  
+    print("슬래시 명령어 동기화 완료!")
 
 
 # 벌금 메세지 수집
@@ -66,7 +67,7 @@ async def get_unchecked_members(message):
 
 
 # 슬래시 명령
-@bot.tree.command(name="벌금체크", description="최근 14일간 벌금 납부 후 체크 안 한 부원을 멘션합니다.")
+@bot.tree.command(name="벌금체크", description="최근 2주간 벌금 납부 후 ✅ 체크 표시를 하지 않은 부원을 알려드립니다.")
 async def 벌금체크(interaction: discord.Interaction):
     messages = await get_fine_messages(interaction.channel)
     
@@ -77,7 +78,7 @@ async def 벌금체크(interaction: discord.Interaction):
 
     if all_unchecked:
         mentions = " ".join(member.mention for member in all_unchecked)
-        await interaction.response.send_message(f"{mentions}\n벌금 납부 안 하신 분들은 입금 후 체크 표시(✅) 꼭 남겨주세요!")
+        await interaction.response.send_message(f"{mentions}\n벌금 입금 후 ✅ 체크 표시 꼭 남겨주세요!")
     else:
         await interaction.response.send_message("✅ 전원 입금 완료!")
 
